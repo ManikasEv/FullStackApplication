@@ -1,35 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-
+import { useState, useEffect } from "react";
+import "./App.css";
+import ContactList from "./ContactList";
+import ContactForm from "./ContactForm";
 function App() {
-  const [count, setCount] = useState(0)
+  const [contact, setContact] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  useEffect(() => {
+    fetchContacts();
+  }, []);
+
+  const fetchContacts = async () => {
+    const response = await fetch("http://127.0.0.1:5000/contacts");
+    const data = await response.json();
+    setContact(data.contacts);
+    console.log(data.contacts);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+  }
+
+  const openCreateModal = () => {
+    if(!isModalOpen) setIsModalOpen(true)
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <ContactList contacts={contact} />
+      <button onClick={openCreateModal}>Crete New Contact</button>
+      { isModalOpen && <div className="modal">
+        <div className="content">
+        <span className="close" onClick={closeModal}>&times;</span>
+          <ContactForm />
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      }
     </>
-  )
+  );
 }
 
-export default App
+export default App;
